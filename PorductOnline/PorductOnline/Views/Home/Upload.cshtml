@@ -1,0 +1,25 @@
+﻿
+@{
+    ViewData["Title"] = "Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Upload</h1>
+
+@using (Html.BeginForm("Upload", "Home", FormMethod.Post,
+  new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+<div>
+    <fieldset>
+        <legend>Upload a file</legend>
+        <div class="editor-field" style="margin:2%">
+            @Html.TextBox("file", "", new { type = "file" })
+        </div>
+        <div class="editor-field" style="margin:2%">
+            <input type="submit" value="Upload" />
+        </div>
+    </fieldset>
+</div>
+   
+}

@@ -1,0 +1,94 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.PeerToPeer;
+using System.Threading.Tasks;
+using System.Web.Helpers;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage.Blob;
+using PorductOnline.Data;
+using PorductOnline.Models;
+
+namespace PorductOnline.Controllers
+{
+    public class HomeController : Controller
+    {
+        private MyContext myContext;
+
+        private readonly IHostingEnvironment hostingEnvironment;
+        public HomeController(IHostingEnvironment environment, MyContext context)
+        {
+            hostingEnvironment = environment;
+            myContext = context;
+        }
+
+
+        // GET: HomeController
+        [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Client)]
+        public ActionResult Index()
+        {
+            return View(myContext.productDb);
+        }
+
+        // GET: HomeController/Create
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: HomeController/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> CreateAsync(Product pro)
+        {
+            string storageAccountName = "productstorage1209";
+
+            string accountAccountKey = "/regZocj4BlvZ5H+0T0EBR2M03PpTfUnvQaRdl5YxzKpQs/IPQwWGYeMfAcC92Gatuyotj+js/PmV55ykNjJ3w==";
+
+            StorageCredentials storageCredentials = new StorageCredentials(storageAccountName, accountAccountKey);
+
+            CloudStorageAccount cloudStorageAccount = new CloudStorageAccount(storageCredentials, true);
+
+            CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+
+            CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference("productimage");
+
+            await cloudBlobContainer.CreateIfNotExistsAsync();
+
+            CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference("productimage");
+
+            if (pro.image != null)
+            {
+                var uniqueFileName = GetUniqueFileName(pro.image.FileName);
+                var uploads = Path.Combine(hostingEnvironment.WebRootPath, "uploads");
+                var filePath = Path.Combine(uploads, (string)uniqueFileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    pro.image.CopyTo(stream);
+                    await cloudBlockBlob.UploadFromStreamAsync(stream);
+                    pro.file = filePath;
+                    myContext.productDb.Add(pro);
+                    myContext.SaveChanges();
+                }
+            }
+            else
+                return View("Create");
+            return View("Index", myContext.productDb);
+        }
+
+        private object GetUniqueFileName(object fileName)
+        {
+            fileName = Path.GetFileName((string)fileName);
+            return Path.GetFileNameWithoutExtension((string)fileName)
+                      + "_"
+                      + Guid.NewGuid().ToString().Substring(0, 4)
+                      + Path.GetExtension((string)fileName);
+        }
+    }
+}
