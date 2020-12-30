@@ -14,6 +14,8 @@ using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using PorductOnline.Data;
 using PorductOnline.Models;
+using System.Configuration;
+using System.Configuration;
 
 namespace PorductOnline.Controllers
 {
@@ -47,9 +49,9 @@ namespace PorductOnline.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateAsync(Product pro)
         {
-            string storageAccountName = "productstorage1209";
+            string storageAccountName = ConfigurationManager.AppSettings["storageAccountName"];
 
-            string accountAccountKey = "/regZocj4BlvZ5H+0T0EBR2M03PpTfUnvQaRdl5YxzKpQs/IPQwWGYeMfAcC92Gatuyotj+js/PmV55ykNjJ3w==";
+            string accountAccountKey = ConfigurationManager.AppSettings["accountAccountKey"];
 
             StorageCredentials storageCredentials = new StorageCredentials(storageAccountName, accountAccountKey);
 

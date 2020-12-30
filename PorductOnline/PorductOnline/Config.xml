@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <appSetting>
+    <add key="storageAccountName" value="productstorage1209"/>
+    <add key="accountAccountKey" value="/regZocj4BlvZ5H+0T0EBR2M03PpTfUnvQaRdl5YxzKpQs/IPQwWGYeMfAcC92Gatuyotj+js/PmV55ykNjJ3w=="/>
+  </appSetting>
+</configuration>
